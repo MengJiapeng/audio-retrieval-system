@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>首页</title>
+    <style>
+        header {
+            background: rgb(11, 34, 57) url(/img/katong.jpg);
+        }
+        header .jumbotron {
+            background: rgb(11, 34, 57) url(/img/katong.jpg);
+        }
+        .list-group {
+            padding-left: 15px;
+        }
+        .list-group .list-title {
+            background-color:lightgray;
+        }
+        .list-group .list-group-item {
+            border-top-style: none;
+        }
+        .list-title .feather {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<header>
+    <!-- nav bar -->
+    <nav class="navbar navbar-expand-md">
+        <a class="navbar-brand font-weight-bolder text-dark" href="#" style="font-size: 2.5rem">Music</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+
+            </ul>
+            <form class="form-inline mt-2 mt-md-0">
+                <a class="btn btn-outline-success my-2 my-sm-0" href="/logout">
+                    注销
+                </a>
+            </form>
+        </div>
+    </nav>
+
+    <section class="jumbotron pt-0 mb-0">
+        <!-- title -->
+        <div class="text-center px-3 py-3 pt-md-5 pb-md-4 mx-auto">
+            <h1 class="display-3 mb-2"><b>Music</b></h1>
+            <p class="lead"><strong>Quickly build your own music library.</strong></p>
+        </div>
+
+        <!-- search -->
+        <div class="row">
+            <div class="input-group input-group-lg col-md-6 offset-md-3">
+                <!--suppress HtmlFormInputWithoutLabel -->
+                <input type="text" class="form-control" id="input-search" name="input-search"
+                       placeholder="Search music...">
+                <div class="input-group-append">
+                    <button class="btn btn-success" type="submit" id="btn-search" onclick="searchWithInput()">Go</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="list-group col-md-6 offset-md-3" id="div-suggest">
+            </div>
+        </div>
+    </section>
+</header>
+
+<main role="main" class="container">
+
+    <!-- search result -->
+    <table class="table table-responsive-lg table-hover table-striped" id="result">
+        <thead>
+            <tr class="row w-100">
+                <th scope="col" class="col-md-1">#</th>
+                <th scope="col" class="col-md-1">操作</th>
+                <th scope="col" class="col-md-3">音乐标题</th>
+                <th scope="col" class="col-md-2">歌手</th>
+                <th scope="col" class="col-md-4">专辑</th>
+                <th scope="col" class="col-md-1">时长</th>
+            </tr>
+        </thead>
+        <tbody id="content">
+        </tbody>
+    </table>
+
+    <!-- pagination -->
+    <ul class="pagination justify-content-center" id="paginate-container">
+    </ul>
+
+</main>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="/js/jquery-3.4.0.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<!-- Icons -->
+<script src="/js/feather.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#result").hide();
+        var inputSearch = $("#input-search");
+        inputSearch.bind("input propertychange", function () {
+            var value = $(this).val();
+            $.ajax({
+                type: "GET",
+                url: "/audio/suggest",
+                data: {"q": value},
+                success: function (response) {
+                    if (!response) {
+                        return;
+                    }
+                    if (response.code === 200 && response.data !== null) {
+                        var suggestion = response.data;
+                        var div = $("#div-suggest");
+                        div.empty();
+                        var i = 0;
+                        if (suggestion['titleSuggester'] !== null && suggestion['titleSuggester'].length > 0) {
+                            div.append('<div class="list-group-item list-title"><i data-feather="music"></i>单曲</div>');
+                            for (i = 0; i < suggestion['titleSuggester'].length; ++i) {
+                                div.append('<div class="list-group-item list-data" onclick="searchWithSuggestion(\'title\', $(this))">' + suggestion['titleSuggester'][i]['term'] + '</div>');
+                            }
+                        }
+                        if (suggestion['artistSuggester'] !== null && suggestion['artistSuggester'].length > 0) {
+                            div.append('<div class="list-group-item list-title"><i data-feather="user"></i>歌手</div>');
+                            for (i = 0; i < suggestion['artistSuggester'].length; ++i) {
+                                div.append('<div class="list-group-item list-data" onclick="searchWithSuggestion(\'artist\', $(this))">' + suggestion['artistSuggester'][i]['term'] + '</div>');
+                            }
+                        }
+                        if (suggestion['albumSuggester'] !== null && suggestion['albumSuggester'].length > 0) {
+                            div.append('<div class="list-group-item list-title"><i data-feather="disc"></i>专辑</div>');
+                            for (i = 0; i < suggestion['albumSuggester'].length; ++i) {
+                                div.append('<div class="list-group-item list-data" onclick="searchWithSuggestion(\'album\', $(this))">' + suggestion['albumSuggester'][i]['term'] + '</div>');
+                            }
+                        }
+                        feather.replace();
+                        if (div.hasClass("d-none")) {
+                            div.removeClass("d-none");
+                        }
+                    } else if (response.code === 500) {
+                        alert(response.msg);
+                    }
+                }
+            });
+        });
+    });
+
+    function searchWithInput() {
+        var input = $("#input-search").val();
+        search(input, 1);
+    }
+
+    function searchWithSuggestion(type, button) {
+        var value = button.text();
+        $("#input-search").val(value);
+        search(type + ":" + value, 1);
+    }
+
+    function search(query, page) {
+        $.ajax({
+            type: "GET",
+            url: "/audio",
+            data: {"q": query, "page": page},
+            success: function (data) {
+                if (!data) {
+                    return;
+                }
+                if (data.code === 500) {
+                    alert(data.msg);
+                    return;
+                }
+                if (data.code === 200) {
+                    var response = data.data;
+                    var result = response['data'];
+                    var numFound = response['numFound'];
+                    var page = response['page'];
+                    if (numFound <= 0) {
+                        return;
+                    }
+                    var contentView = $("#content");
+                    contentView.empty();
+                    for (var i = 0; i < result.length; ++i) {
+                        contentView.append('<tr class="row w-100">\n' +
+                            '                <th scope="row" class="col-md-1">' + (i + 1) + '</th>\n' +
+                            '                <td class="col-md-1">\n' +
+                            '                    <a href="' + result[i]['url'] + '"><i data-feather="download" class="text-dark"></i></a>\n' +
+                            '                    <a href="#"><i data-feather="play-circle" class="text-dark"></i></audio>\n' +
+                            '                </td>\n' +
+                            '                <td class="col-md-3">' + result[i]['title'] + '</td>\n' +
+                            '                <td class="col-md-2">' + result[i]['artist'] + '</td>\n' +
+                            '                <td class="col-md-4">' + result[i]['album'] + '</td>\n' +
+                            '                <td class="col-md-1">' + result[i]['trackLength'] + '</td>\n' +
+                            '            </tr>');
+                    }
+                    feather.replace();
+                    $("#result").show();
+                    var totalPages = Math.ceil(parseInt(numFound) / 10);
+                    refreshPagination(query, page, totalPages);
+                }
+            }
+        });
+        $("#div-suggest").addClass("d-none");
+    }
+
+    function refreshPagination(query, page, totalPage) {
+        var paginateView = $("#paginate-container");
+        paginateView.empty();
+        if (totalPage <= 1) {
+            return;
+        }
+        if (page === 1) {
+            paginateView.append('<li class="page-item disabled"><button class="page-link">上一页</button></li>');
+        } else {
+            paginateView.append('<li class="page-item"><button onclick="search(\'' + query + '\',' + (page - 1) + ')" class="page-link">上一页</button></li>');
+        }
+        for (var i = 1; i <= totalPage; ++i) {
+            if (i === page) {
+                paginateView.append('<li class="page-item active"><button onclick="search(\'' + query + '\',' + i + ')" class="page-link">' + i + '</button></li>');
+            } else {
+                paginateView.append('<li class="page-item"><button onclick="search(\'' + query + '\',' + i + ')" class="page-link">' + i + '</button></li>');
+            }
+        }
+        if (page === totalPage) {
+            paginateView.append('<li class="page-item disabled"><button class="page-link">下一页</button></li>');
+        } else {
+            paginateView.append('<li class="page-item"><button onclick="search(\'' + query + '\',' + (page + 1) + ')" class="page-link">下一页</button></li>');
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="../static/favicon.ico">
+
+    <title>登录</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/login.css" rel="stylesheet">
+
+    <link rel="shortcut icon" href="/favicon.ico">
+</head>
+
+<body>
+    <div class="form-signin">
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" class="form-control" id="username">
+        </div>
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" class="form-control" id="password">
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" value="remember-me">记住我
+            </label>
+        </div>
+        <button class="btn btn-primary btn-block mt-3" onclick="login()">登录</button>
+        <a class="btn btn-primary btn-block mt-3" href="/register">注册</a>
+    </div>
+</body>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="/js/jquery-3.4.0.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+    function login() {
+        var requestData = {
+            "username": $("#username").val(),
+            "password": $("#password").val()
+        };
+        console.log(requestData);
+        $.ajax({
+            type: "POST",
+            url: "/login",
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify(requestData),
+            success: function (response) {
+                if (response.code === 200) {
+                    if (response.data.role === 0) {
+                        window.location.href = "/admin/audioManage";
+                    } else {
+                        window.location.href = "/";
+                    }
+                } else if (response.code === 400) {
+                    alert(response.msg);
+                }
+            }
+        });
+    }
+</script>
+</html>

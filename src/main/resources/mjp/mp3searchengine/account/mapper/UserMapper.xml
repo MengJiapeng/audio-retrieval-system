@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mjp.mp3searchengine.account.mapper.UserMapper">
+
+    <resultMap id="userResultMap" type="mjp.mp3searchengine.entity.User">
+        <id property="id" column="id" javaType="java.math.BigInteger"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="role" column="role"/>
+        <result property="enabled" column="is_enabled"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <association property="authorityList" column="id" select="selectAuthorityById" typeHandler="mjp.mp3searchengine.typehandler.SimpleGrantedAuthorityTypeHandler"/>
+    </resultMap>
+
+    <insert id="insertUser" parameterType="mjp.mp3searchengine.entity.User" useGeneratedKeys="true" keyProperty="id">
+        insert into `user` (username, password, role, is_enabled, nickname, last_login_ip, last_login_time)
+        values (#{username}, #{password}, #{role}, #{enabled}, #{nickname}, #{lastLoginIp}, #{lastLoginTime})
+    </insert>
+
+    <update id="updateUser">
+        update `user`
+        <set>
+            <if test="password != null">password = #{password},</if>
+            <if test="enabled != null">is_enabled = #{enabled},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="lastLoginIp != null">last_login_ip = #{lastLoginIp},</if>
+            <if test="lastLoginTime != null">last_login_time = #{lastLoginTime}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectUserByUsername" resultMap="userResultMap">
+        select * from `user` where username = #{username}
+    </select>
+
+    <select id="selectAuthorityById" resultType="string">
+        select authority from `user_authority` where user_id = #{id}
+    </select>
+
+    <select id="selectUserById" resultMap="userResultMap">
+        select * from user where id = #{id}
+    </select>
+
+    <select id="listUser" resultMap="userResultMap">
+        select id, username, nickname, role, is_enabled, last_login_ip, last_login_time from `user`
+        <where>
+            <if test="username != null">
+                username like concat('%', #{username}, '%')
+            </if>
+            <if test="nickname != null">
+                and nickname like concat('%', #{nickname}, '%')
+            </if>
+            <if test="role != null">
+                and role = #{role}
+            </if>
+            <if test="enabled != null">
+                and is_enabled = #{enabled}
+            </if>
+        </where>
+    </select>
+</mapper>

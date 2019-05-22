@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>控制中心</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="/fontawesome/css/all.min.css" rel="stylesheet">
+    <!-- bootstrap-fileinput CSS -->
+    <link href="/css/fileinput.min.css" rel="stylesheet" media="all" type="text/css">
+    <!-- Custom styles for this template -->
+    <link href="/css/dashboard.css" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">控制中心</a>
+        <!-- <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"> -->
+        <ul class="navbar navbar-nav navbar-right px-3">
+            <li>
+                <a class="nav-link" href="/logout">注销</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <span data-feather="music"></span>
+                                音乐管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/userManage">
+                                <span data-feather="users"></span>
+                                用户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/authorityManage">
+                                <span data-feather="lock"></span>
+                                权限管理
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                    <h1 class="h2">音乐管理</h1>
+                </div>
+
+                <div>
+                    <div class="mb-5">
+                        <div class="form-row">
+                            <div class="form-group col-md-8">
+                                <input class="form-control" type="text" placeholder="Search" aria-label="Search" id="input">
+                            </div>
+                            <div class="form-group col-md-1">
+                                <button class="btn btn-primary btn-block" type="button" onclick="doSearch()">搜索</button>
+                            </div>
+                            <div class="form-group col-md-1">
+                                <button class="btn btn-success btn-block" type="button" data-toggle="modal" data-target="#uploadSingleAudioModal">
+                                    上传音乐
+                                </button>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <button class="btn btn-success" type="button" data-toggle="modal" data-target="#uploadAudioModal">
+                                    批量上传音乐
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>标题</th>
+                                    <th>歌手</th>
+                                    <th>专辑</th>
+                                    <th>作词</th>
+                                    <th>作曲</th>
+                                    <th>原文件名</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="content">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="myModalLabel">修改信息</h5>
+                    <button class="close" type="button" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <input id="idInput" type="hidden">
+                    <div class="mb-3 px-2">
+                        <label for="title">标题</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="title" value="一期一会">
+                        </div>
+                    </div>
+                    <div class="mb-3 px-2">
+                        <label for="artist">歌手</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="artist" value="周深">
+                        </div>
+                    </div>
+                    <div class="mb-3 px-2">
+                        <label for="album">专辑</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="album" value="一期一会">
+                        </div>
+                    </div>
+                    <div class="mb-3 px-2">
+                        <label for="lyricist">作词</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="lyricist" value="沃特艾文儿">
+                        </div>
+                    </div>
+                    <div class="mb-3 px-2">
+                        <label for="composer">作曲</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="composer" value="町田纪彦">
+                        </div>
+                    </div>
+                    <div class="mb-3 px-2">
+                        <label for="origin">原文件名</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="origin" value="一期一会.mp3" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success btn-sm" onclick="modify()">提交更改</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!-- upload Audio Modal -->
+    <div class="modal fade" id="uploadAudioModal" tabindex="-1" role="dialog" aria-labelledby="uploadAudioModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadAudioModalLabel">批量上传音频文件</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="file-loading">
+                        <input id="input-audio-file" name="file" multiple type="file">
+                    </div>
+                    <div id="kartik-file-errors"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- upload Audio Modal -->
+    <div class="modal fade" id="uploadSingleAudioModal" tabindex="-1" role="dialog" aria-labelledby="uploadSingleAudioModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadSingleAudioModalLabel">上传音频文件</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="file-loading">
+                        <input id="input-single-audio-file" name="file" type="file">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- upload Lyric Modal -->
+    <div class="modal fade" id="uploadLyricModal" tabindex="-1" role="dialog" aria-labelledby="uploadLyricModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadLyricModalLabel">上传歌词文件</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="file-loading">
+                        <input id="input-lyric-file" name="file" multiple type="file">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" title="Your custom upload logic">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="/js/jquery-3.4.0.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- bootstrap-fileinput -->
+    <script src="/js/fileinput.min.js"></script>
+    <script src="/themes/explorer-fas/theme.min.js"></script>
+    <script src="/js/locales/zh.js"></script>
+    <!-- Icons -->
+    <script src="/js/feather.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#input-audio-file").fileinput({
+                language: "zh",
+                theme: "explorer-fas",
+                uploadUrl: "/audio",
+                overwriteInitial: false,
+                allowedFileExtensions: ["mp3", "flac", "wav", "ogg"],
+                maxFileSize: 51200,
+                previewFileIcon: '<i class="fas fa-file"></i>',
+                preferIconicPreview: true,
+                previewFileIconSettings: {
+                    'mp3': '<i class="fas fa-file-audio text-warning"></i>',
+                    'wav': '<i class="fas fa-file-audio text-danger"></i>',
+                    'ogg': '<i class="fas fa-file-audio text-muted"></i>',
+                    'flac': '<i class="fas fa-file-audio text-primary"></i>'
+                }
+            });
+            var singleAudioFile = $("#input-single-audio-file");
+            singleAudioFile.fileinput({
+                language: "zh",
+                theme: "explorer-fas",
+                uploadUrl: "/audio",
+                overwriteInitial: false,
+                allowedFileExtensions: ["mp3", "flac", "wav", "ogg"],
+                maxFileSize: 51200,
+                previewFileIcon: '<i class="fas fa-file"></i>',
+                preferIconicPreview: true,
+                previewFileIconSettings: {
+                    'mp3': '<i class="fas fa-file-audio text-warning"></i>',
+                    'wav': '<i class="fas fa-file-audio text-danger"></i>',
+                    'ogg': '<i class="fas fa-file-audio text-muted"></i>',
+                    'flac': '<i class="fas fa-file-audio text-primary"></i>'
+                }
+            });
+            singleAudioFile.on("fileuploaded", function (event, data, previewId, index) {
+                var response = data.response;
+                $("#uploadSingleAudioModal").modal("hide");
+                search(null);
+                showModifyModal(response["data"]["id"], response["data"]["title"], response["data"]["artist"], response["data"]["album"], response["data"]["lyricist"], response["data"]["composer"], response["data"]["originName"]);
+            });
+            $("#input-lyric-file").fileinput({
+                language: "zh",
+                theme: "explorer-fas",
+                uploadUrl: "/audio/lyric",
+                overwriteInitial: false,
+                maxFileSize: 51200,
+                previewFileIcon: '<i class="fas fa-file"></i>',
+                preferIconicPreview: true
+            });
+            search(null);
+            feather.replace();
+        });
+
+        function search(input) {
+            var data = {};
+            if (input) {
+                data["q"] = input;
+            }
+            $.ajax({
+                type: "GET",
+                url: "/audio",
+                data: data,
+                success: function (response) {
+                    if (response.code === 200) {
+                        var container = $("#content");
+                        container.empty();
+                        for (var i = 0; i < response.data.data.length; ++i) {
+                            container.append("<tr>\n" +
+                                "                                    <td>" + (response.data.data[i]["title"] === null ? "" : response.data.data[i]["title"]) + "</td>\n" +
+                                "                                    <td>" + (response.data.data[i]["artist"] === null ? "" : response.data.data[i]["artist"]) + "</td>\n" +
+                                "                                    <td>" + (response.data.data[i]["album"] === null ? "" : response.data.data[i]["album"]) + "</td>\n" +
+                                "                                    <td>" + (response.data.data[i]["lyricist"] === null ? "" : response.data.data[i]["lyricist"]) + "</td>\n" +
+                                "                                    <td>" + (response.data.data[i]["composer"] === null ? "" : response.data.data[i]["composer"]) + "</td>\n" +
+                                "                                    <td>" + (response.data.data[i]["originName"] === null ? "" : response.data.data[i]["originName"]) + "</td>\n" +
+                                "                                    <td>\n" +
+                                "                                        <button class=\"btn btn-sm btn-info\" onclick='showModifyModal(\"" + response.data.data[i]["id"] + "\", \"" + response.data.data[i]["title"] + "\", \"" + response.data.data[i]["artist"] + "\", \"" + response.data.data[i]["album"] + "\", \"" + response.data.data[i]["lyricist"] + "\", \"" + response.data.data[i]["composer"] + "\", \"" + response.data.data[i]["originName"] + "\")'>修改</button>\n" +
+                                "                                        <button class=\"btn btn-sm btn-info\" data-toggle=\"modal\"\n" +
+                                "                                            data-target=\"#uploadLyricModal\">上传歌词</button>\n" +
+                                "                                    </td>\n" +
+                                "                                </tr>")
+                        }
+                    }
+                }
+            });
+        }
+
+        function showModifyModal(id, title, artist, album, lyricist, composer, originName) {
+            $("#idInput").val(id);
+            $("#title").val(title === "null" ? "" : title);
+            $("#artist").val(artist === "null" ? "" : artist);
+            $("#album").val(album === "null" ? "" : album);
+            $("#lyricist").val(lyricist === "null" ? "" : lyricist);
+            $("#composer").val(composer === "null" ? "" : composer);
+            $("#origin").val(originName === "null" ? "" : originName);
+            $("#myModal").modal('toggle');
+        }
+
+        function modify() {
+            var id = $("#idInput").val();
+            var data = {
+                "title": $("#title").val(),
+                "artist": $("#artist").val(),
+                "album": $("#album").val(),
+                "lyricist": $("#lyricist").val(),
+                "composer": $("#composer").val(),
+                "originName": $("#origin").val()
+            };
+            $.ajax({
+                type: "PUT",
+                url: "/audio/" + id,
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.code === 200) {
+                        alert("修改成功");
+                        search(null);
+                    } else if (response.code === 500) {
+                        alert(response.msg);
+                    }
+                }
+            });
+            $("#myModal").modal("hide");
+        }
+
+        function doSearch() {
+            var input = $("#input").val();
+            search(input);
+        }
+    </script>
+</body>
+
+</html>

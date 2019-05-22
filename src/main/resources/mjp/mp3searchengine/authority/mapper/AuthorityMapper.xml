@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mjp.mp3searchengine.authority.mapper.AuthorityMapper">
+
+    <resultMap id="userAuthorityResultMap" type="mjp.mp3searchengine.entity.UserAuthority">
+        <id property="id" column="id"/>
+        <result property="authority" column="authority"/>
+        <result property="user.id" column="user_id"/>
+    </resultMap>
+
+    <insert id="insertAuthority" parameterType="mjp.mp3searchengine.entity.UserAuthority">
+        INSERT INTO `user_authority` (user_id, authority)
+        VALUES
+        (#{user.id}, #{authority})
+    </insert>
+
+    <delete id="deleteAuthority" parameterType="mjp.mp3searchengine.entity.UserAuthority">
+        DELETE FROM `user_authority`
+        WHERE id = #{id}
+    </delete>
+
+    <select id="selectUserAuthorityByUserIdAndAuthority" resultMap="userAuthorityResultMap">
+        select * from `user_authority` where user_id = #{user.id} and authority = #{authority}
+    </select>
+
+    <select id="listUserAuthority" resultMap="userAuthorityResultMap">
+        select * from `user_authority`
+    </select>
+</mapper>

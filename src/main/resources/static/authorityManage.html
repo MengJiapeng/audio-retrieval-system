@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>控制中心</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link href="/css/offcanvas.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">控制中心</a>
+        <!-- <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"> -->
+        <ul class="navbar navbar-nav navbar-right px-3">
+            <li>
+                <a class="nav-link" href="/logout">注销</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/audioManage">
+                                <span data-feather="music"></span>
+                                音乐管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/userManage">
+                                <span data-feather="users"></span>
+                                用户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <span data-feather="lock"></span>
+                                权限管理
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                    <h1 class="h2">权限管理</h1>
+                </div>
+
+                <div class="my-3 p-3 bg-white rounded box-shadow">
+                    <h6 class="border-bottom border-gray pb-2 mb-0">音乐管理</h6>
+                    <div id="audioManage"></div>
+                    <span class="d-block text-right mt-3">
+                        <a href="#" onclick="showAddAuthorityModal('AUDIO_MANAGEMENT', '音乐管理')">增加授权</a>
+                    </span>
+                </div>
+
+                <div class="my-3 p-3 bg-white rounded box-shadow">
+                    <h6 class="border-bottom border-gray pb-2 mb-0">用户管理</h6>
+                    <div id="userManage"></div>
+                    <span class="d-block text-right mt-3">
+                        <a href="#" onclick="showAddAuthorityModal('USER_MANAGEMENT', '用户管理')">增加授权</a>
+                    </span>
+                </div>
+                
+                <div class="my-3 p-3 bg-white rounded box-shadow">
+                    <h6 class="border-bottom border-gray pb-2 mb-0">权限管理</h6>
+                    <div id="authorityManage"></div>
+                    <span class="d-block text-right mt-3">
+                        <a href="#" onclick="showAddAuthorityModal('AUTHORITY_MANAGEMENT', '权限管理')">增加授权</a>
+                    </span>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 撤销权限提示框 -->
+    <div class="modal fade" id="revokeAuthorityModal" tabindex="-1" role="dialog" aria-labelledby="revokeAuthorityModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="revokeAuthorityModalLabel">操作提示</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input id="userAuthorityIdInput" type="hidden">
+                    <div id="revokeMessage"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="revokeAuthority()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 增加权限Modal -->
+    <div class="modal fade" id="addAuthorityModal" tabindex="-1" role="dialog" aria-labelledby="addAuthorityModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="addAuthorityModalLabel">增加权限</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="authorityNameInput">
+                    <input type="hidden" id="authorityCodeInput">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="请输入用户名"  id="usernameInput">
+                        <div class="input-group-append">
+                            <button class="btn btn-success btn-sm" onclick="searchUserByUsername()">搜索</button>
+                        </div>
+                    </div>
+                    <ul class="list-group" id="userList">
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="/js/jquery-3.4.0.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- Icons -->
+    <script src="/js/feather.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            getAllUserAuthority();
+            feather.replace();
+        });
+
+        function showRevokeAuthorityModal(id, nickname, authorityName) {
+            $("#userAuthorityIdInput").val(id);
+            var element = $("#revokeMessage");
+            element.empty();
+            element.append("<span>确认撤销&nbsp;</span>");
+            element.append("<span class='font-weight-bold'>" + nickname + "</span>");
+            element.append("<span>&nbsp;的&nbsp;</span>");
+            element.append("<span class='font-weight-bold'>" + authorityName + "</span>");
+            element.append("<span>&nbsp;权限吗？</span>");
+            $("#revokeAuthorityModal").modal('toggle');
+        }
+
+        function revokeAuthority() {
+            var id = $("#userAuthorityIdInput").val();
+            $.ajax({
+                type: "DELETE",
+                url: "/userAuthority/" + id,
+                contentType: "application/json;charset=utf-8",
+                success: function (response) {
+                    if (response.code === 204) {
+                        $("#revokeAuthorityModal").modal('hide');
+                        getAllUserAuthority();
+                    } else if (response.code === 400) {
+                        alert(response.msg);
+                    }
+                }
+            });
+        }
+
+        function getAllUserAuthority() {
+            var audioManageDiv = $("#audioManage");
+            var userManageDiv = $("#userManage");
+            var authorityManageDiv = $("#authorityManage");
+            audioManageDiv.empty();
+            userManageDiv.empty();
+            authorityManageDiv.empty();
+            $.ajax({
+                type: "GET",
+                url: "/userAuthority",
+                success: function (response) {
+                    if (response.code === 200) {
+                        var data = response.data;
+                        if (data !== null && data.length > 0) {
+                            for (var i = 0; i < data.length; ++i) {
+                                if (data[i]['authority'] === "AUDIO_MANAGEMENT") {
+                                    audioManageDiv.append("<div class=\"media text-muted pt-3\">\n" +
+                                        "                        <i data-feather=\"user\" class=\"mr-2 rounded\" style=\"width: 32px; height: 32px;\"></i>\n" +
+                                        "                        <div class=\"media-body pb-3 mb-0 lh-125 border-bottom border-gray\">\n" +
+                                        "                            <div class=\"d-flex justify-content-between align-items-center w-100\">\n" +
+                                        "                                <strong class=\"text-gray-dark\">" + data[i]['user']['nickname'] + "</strong>\n" +
+                                        "                                <a href=\"#\" onclick=\"showRevokeAuthorityModal(" + data[i]['id'] + ", '" + data[i]['user']['nickname'] + "', '音乐管理')\">撤销权限</a>\n" +
+                                        "                            </div>\n" +
+                                        "                            <span class=\"d-block\">@" + data[i]['user']['username'] + "</span>\n" +
+                                        "                        </div>\n" +
+                                        "                    </div>")
+                                } else if (data[i]['authority'] === "USER_MANAGEMENT") {
+                                    userManageDiv.append("<div class=\"media text-muted pt-3\">\n" +
+                                        "                        <i data-feather=\"user\" class=\"mr-2 rounded\" style=\"width: 32px; height: 32px;\"></i>\n" +
+                                        "                        <div class=\"media-body pb-3 mb-0 lh-125 border-bottom border-gray\">\n" +
+                                        "                            <div class=\"d-flex justify-content-between align-items-center w-100\">\n" +
+                                        "                                <strong class=\"text-gray-dark\">" + data[i]['user']['nickname'] + "</strong>\n" +
+                                        "                                <a href=\"#\" onclick=\"showRevokeAuthorityModal(" + data[i]['id'] + ", '" + data[i]['user']['nickname'] + "', '用户管理')\">撤销权限</a>\n" +
+                                        "                            </div>\n" +
+                                        "                            <span class=\"d-block\">@" + data[i]['user']['username'] + "</span>\n" +
+                                        "                        </div>\n" +
+                                        "                    </div>")
+                                } else if (data[i]['authority'] === "AUTHORITY_MANAGEMENT") {
+                                    authorityManageDiv.append("<div class=\"media text-muted pt-3\">\n" +
+                                        "                        <i data-feather=\"user\" class=\"mr-2 rounded\" style=\"width: 32px; height: 32px;\"></i>\n" +
+                                        "                        <div class=\"media-body pb-3 mb-0 lh-125 border-bottom border-gray\">\n" +
+                                        "                            <div class=\"d-flex justify-content-between align-items-center w-100\">\n" +
+                                        "                                <strong class=\"text-gray-dark\">" + data[i]['user']['nickname'] + "</strong>\n" +
+                                        "                                <a href=\"#\" onclick=\"showRevokeAuthorityModal(" + data[i]['id'] + ", '" + data[i]['user']['nickname'] + "', '权限管理')\">撤销权限</a>\n" +
+                                        "                            </div>\n" +
+                                        "                            <span class=\"d-block\">@" + data[i]['user']['username'] + "</span>\n" +
+                                        "                        </div>\n" +
+                                        "                    </div>")
+                                }
+                            }
+                            feather.replace();
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showAddAuthorityModal(authorityCode, authorityName) {
+            $("#authorityNameInput").val(authorityName);
+            $("#authorityCodeInput").val(authorityCode);
+            $("#addAuthorityModal").modal('toggle');
+        }
+
+        function searchUserByUsername() {
+            var username = $("#usernameInput").val();
+            if (username === null || username === "") {
+                return;
+            }
+            $.ajax({
+                type: "GET",
+                url: "/user",
+                data: {"username": username},
+                success: function (response) {
+                    if (response.code === 200) {
+                        var userListContainer = $("#userList");
+                        userListContainer.empty();
+                        for (var i = 0; i < response.data.length; ++i) {
+                            userListContainer.append("<li onclick='addAuthority($(this), " + response.data[i]['id'] + ")' class=\"list-group-item\">" + response.data[i]['nickname'] + "@" + response.data[i]['username'] + "</li>")
+                        }
+                    }
+                }
+            })
+        }
+
+        function addAuthority(element, userId) {
+            var authorityName = $("#authorityNameInput").val();
+            var authorityCode = $("#authorityCodeInput").val();
+            if (confirm("确认赋予 " + element.text() + " " + authorityName + "权限吗?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "/userAuthority",
+                    contentType: "application/json;charset=utf-8",
+                    data: JSON.stringify({"user": {"id": userId}, "authority": authorityCode}),
+                    success: function (response) {
+                        if (response.code === 201) {
+                            $("#addAuthorityModal").modal("hide");
+                            getAllUserAuthority();
+                            alert("操作成功");
+                        } else if (response.code === 400) {
+                            alert("操作失败");
+                        }
+                    }
+                })
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>控制中心</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/css/dashboard.css" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">控制中心</a>
+        <!-- <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"> -->
+        <ul class="navbar navbar-nav navbar-right px-3">
+            <li>
+                <a class="nav-link" href="/logout">注销</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/audioManage">
+                                <span data-feather="music"></span>
+                                音乐管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <span data-feather="users"></span>
+                                用户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/authorityManage">
+                                <span data-feather="lock"></span>
+                                权限管理
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                    <h1 class="h2">用户管理</h1>
+                </div>
+
+                <div class="mb-5">
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="username">用户名</label>
+                            <input id="username" type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="nickname">昵称</label>
+                            <input id="nickname" type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="role">角色</label>
+                            <select class="form-control" id="role">
+                                <option></option>
+                                <option>管理员</option>
+                                <option>普通用户</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="state">账户状态</label>
+                            <select id="state" class="form-control">
+                                <option></option>
+                                <option>正常</option>
+                                <option>禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="button">&nbsp;</label>
+                            <button class="form-control btn btn-primary" id="button" onclick="searchUser()">查询</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>用户账号</th>
+                                <th>用户昵称</th>
+                                <th>用户角色</th>
+                                <th>账户状态</th>
+                                <th>上次登陆IP</th>
+                                <th>上次登陆时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userList">
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="/js/jquery-3.4.0.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- Icons -->
+    <script src="/js/feather.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            feather.replace();
+            getAllUser();
+        });
+        
+        function doSearch(data) {
+            $.ajax({
+                type: "GET",
+                url: "/user",
+                data: data,
+                success: function (response) {
+                    if (response.code === 200) {
+                        var userContainer = $("#userList");
+                        userContainer.empty();
+                        for (var i = 0; i < response.data.length; ++i) {
+                            var html = "<tr>\n" +
+                                "                                <td>" + response.data[i]['username'] + "</td>\n" +
+                                "                                <td>" + response.data[i]['nickname'] + "</td>\n";
+                            if (response.data[i]['role'] === 0) {
+                                html += "<td><span class=\"text-success\">管理员</span></td>";
+                            } else {
+                                html += "<td>普通用户</td>";
+                            }
+                            if (response.data[i]['enabled']) {
+                                html += "<td><span class=\"text-success\">正常</span></td>";
+                            } else {
+                                html += "<td><span class=\"text-danger\">禁用</span></td>";
+                            }
+                            html += "<td>" + response.data[i]['lastLoginIp'] + "</td>\n" +
+                                "                                <td>" + response.data[i]['lastLoginTime'] + "</td>\n" +
+                                "                                <td>";
+                            if (response.data[i]['role'] === 0) {
+                                html += "<button class=\"btn btn-sm btn-success disabled mr-1\">设为管理员</button>";
+                            } else {
+                                html += "<button class=\"btn btn-sm btn-success mr-1\" onclick=\"setAsAdministrator(" + response.data[i]['id'] + ")\">设为管理员</button>";
+                            }
+                            if (response.data[i]['enabled']) {
+                                html += "<button class=\"btn btn-sm btn-danger\" onclick='disableAccount(" + response.data[i]['id'] + ")'>禁用</button>";
+                            } else {
+                                html += "<button class=\"btn btn-sm btn-success\" onclick='enableAccount(" + response.data[i]['id'] + ")'>解冻</button>";
+                            }
+                            html += "</td>\n" +
+                                "                            </tr>";
+                            userContainer.append(html);
+                        }
+                    }
+                }
+            });
+        }
+
+        function getAllUser() {
+            doSearch(null);
+        }
+
+        function disableAccount(id) {
+            if (confirm("确认禁用该账户？")) {
+                updateUser(id, {"enabled": "false"});
+            }
+        }
+
+        function enableAccount(id) {
+            if (confirm("确认解冻该账户？")) {
+                updateUser(id, {"enabled": "true"});
+            }
+        }
+
+        function setAsAdministrator(id) {
+            if (confirm("确认将该用户设置为管理员？")) {
+                updateUser(id, {"role": 0});
+            }
+        }
+
+        function updateUser(id, data) {
+            $.ajax({
+                type: "PUT",
+                url: "/user/" + id,
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.code === 200) {
+                        alert("操作成功");
+                        getAllUser();
+                    } else {
+                        alert("操作失败");
+                    }
+                }
+            });
+        }
+
+        function searchUser() {
+            var data = {};
+            var username = $("#username").val();
+            if (username !== null && username.trim() !== "") {
+                data['username'] = username;
+            }
+            var nickname = $("#nickname").val();
+            if (nickname !== null && nickname.trim() !== "") {
+                data['nickname'] = nickname;
+            }
+            var role = $("#role").find("option:selected").text();
+            if (role !== null && role.trim() !== "") {
+                if (role === "管理员") {
+                    data['role'] = 0;
+                } else if (role === "普通用户") {
+                    data['role'] = 1;
+                }
+            }
+            var state = $("#state").find("option:selected").text();
+            if (state !== null && state.trim() !== "") {
+                if (state === "正常") {
+                    data['enabled'] = true;
+                } else if (state === "禁用") {
+                    data['enabled'] = false;
+                }
+            }
+            doSearch(data);
+        }
+    </script>
+</body>
+
+</html>
